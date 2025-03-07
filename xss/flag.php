@@ -1,13 +1,8 @@
 <?php
-session_start(); // ✅ Start session correctly
-
-header('Content-Type: text/plain'); // ✅ Prevent unwanted HTML rendering
-
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    if (isset($_SESSION['flag'])) {
-        echo $_SESSION['flag']; // ✅ Flag is only sent via AJAX
-    } else {
-        echo "No flag found!";
-    }
+// Only allow the flag if called via XMLHttpRequest (fetch, AJAX)
+if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+    echo "flag{D9p!X3V#K7qT6@M}";
+} else {
+    http_response_code(403);
+    echo "Forbidden!";
 }
-?>

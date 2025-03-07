@@ -1,0 +1,1 @@
+flag{C0mm4nd_1nj3ct10n}
