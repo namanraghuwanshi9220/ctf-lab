@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: lfi_lab_web
+    ports:
+      - "3006:80"
