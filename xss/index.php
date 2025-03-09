@@ -1,70 +1,35 @@
-<?php
-$flag = "FLAG{XSS_WORKS_FINE}";
-$input = isset($_GET['q']) ? $_GET['q'] : '';
-$hint = '';
-
-$payloads = [
-    '<script>alert(1)</script>' => 'Nice start! Replace alert with <code>showFlag()</code>.',
-    '<svg onload=alert(1)>' => 'Great! Now trigger <code>showFlag()</code>.',
-    '<img src=x onerror=alert(1)>' => 'Perfect! Swap alert with <code>showFlag()</code>.',
-];
-
-foreach ($payloads as $payload => $clue) {
-    if (stripos($input, $payload) !== false) {
-        $hint = $clue;
-        break;
-    }
-}
-
-// Flag is kept encoded to avoid leaking in View Source
-$encodedFlag = base64_encode($flag);
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Reflected XSS Lab 🚀</title>
-    <script>
-        function showFlag() {
-            const encoded = "<?php echo $encodedFlag; ?>";
-            const flag = atob(encoded); // Decode base64
-            document.getElementById('flag').innerText = flag;
-        }
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XSS Lab</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h1 class="text-2xl font-bold mb-4">Reflected XSS Lab 🧪</h1>
-        <form method="GET" class="mb-4">
-            <input
-                type="text"
-                name="q"
-                placeholder="Enter your payload..."
-                class="border p-2 w-full mb-2"
-            />
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">
-                Submit
-            </button>
+<body class="bg-gray-900 text-white flex items-center justify-center h-screen">
+    <div class="bg-gray-800 p-6 rounded-lg shadow-lg w-96 text-center">
+        <h1 class="text-2xl font-bold mb-4">XSS Lab</h1>
+        <form method="GET">
+            <input type="text" name="input" class="w-full p-2 mb-4 border border-gray-600 bg-gray-700 text-white rounded-lg" placeholder="Enter your payload">
+            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white p-2 rounded-lg">Submit</button>
         </form>
-
-        <?php if ($hint): ?>
-            <div class="mb-4 p-4 bg-yellow-100 text-yellow-800 border border-yellow-300 rounded">
-                <strong>Hint:</strong> <?php echo $hint; ?>
-            </div>
-        <?php endif; ?>
-
-        <div class="p-4 bg-gray-50 border rounded">
-            <h2 class="font-semibold mb-2">Your Input:</h2>
-            <div>
+        
+        <div class="mt-4 p-3 bg-gray-700 rounded-lg">
+            <p>Response:</p>
+            <div class="text-yellow-400 text-lg">
                 <?php
-                // 🔥 Reflect input as raw (XSS vulnerable!)
-                echo $input;
+                if (isset($_GET['input'])) {
+                    $payload = $_GET['input'];
+                    echo $payload; // **Vulnerable to Reflected XSS**
+                    
+                    // **Flag Reveal Condition**
+                    if (strpos($payload, '<script>alert("XSS")</script>') !== false) {
+                        echo "<p class='text-green-400 font-bold mt-2'>Flag: FLAG{XSS_PWNED}</p>";
+                    }
+                }
                 ?>
             </div>
         </div>
-
-        <div id="flag" class="mt-4 p-4 bg-green-100 text-green-700 font-bold rounded"></div>
     </div>
 </body>
 </html>
